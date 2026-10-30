@@ -12,6 +12,7 @@ window.LINKS = {
   linkedin: "https://www.linkedin.com/in/alexander-chebannyy/",
   music: "https://band.link/fill_the_vxid",
   podcast: "https://4bunny.mave.digital/",
+  guides: "https://alexchebanny.notion.site/e4ff4e32846540d7bce1c92b06f83acc?v=ac2d338086124e988a4bf5c15da4e70b",
 };
 
 window.CONTENT = {
@@ -30,6 +31,7 @@ window.CONTENT = {
     music: "Моя музыка",
     podcast: "Подкаст",
     playlists: "Плейлисты",
+    guides: "Гиды по городам",
   },
   en: {
     name: "Sasha Chebannyy",
@@ -46,5 +48,6 @@ window.CONTENT = {
     music: "My music",
     podcast: "Podcast",
     playlists: "Playlists",
+    guides: "City guides",
   },
 };
