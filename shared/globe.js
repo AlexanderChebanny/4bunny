@@ -2,19 +2,16 @@
 // страна, в которую попадает точка, подсвечивается. Один палец или мышь крутят,
 // щипок двумя пальцами (или Ctrl + колесо / щипок на трекпаде) приближает.
 // Через 5 секунд без касаний глобус плавно возвращается домой — успеваешь приблизить и покрутить.
-// Обычный скрипт с динамическим import(): так он работает и при открытии файла
-// двойным кликом (file://), где браузер блокирует локальные type="module".
+// Библиотеки и карта лежат в assets/vendor/ и подключены обычными скриптами до этого:
+// window.d3 (d3-array + d3-geo), window.topojson, window.WORLD — без CDN и без модулей,
+// поэтому работает и при открытии файла двойным кликом (file://).
 
 (async function () {
   const wrap = document.querySelector("[data-globe-wrap]");
   if (!wrap) return;
 
-  const [d3, topojson, world, { lat, lon }] = await Promise.all([
-    import("https://cdn.jsdelivr.net/npm/d3-geo@3.1.1/+esm"),
-    import("https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/+esm"),
-    fetch("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json").then((r) => r.json()),
-    window.GEO,
-  ]);
+  const { d3, topojson, WORLD: world } = window;
+  const { lat, lon } = await window.GEO;
 
   const svg = wrap.querySelector("svg");
   const el = (name) => svg.querySelector(`[data-${name}]`);
