@@ -1,7 +1,7 @@
 // Глобус с контурами стран (d3-geo, SVG). Центр — текущая локация из window.GEO,
 // страна, в которую попадает точка, подсвечивается. Один палец или мышь крутят,
 // щипок двумя пальцами (или Ctrl + колесо / щипок на трекпаде) приближает.
-// После отпускания глобус плавно возвращается домой.
+// Через 10 секунд без касаний глобус плавно возвращается домой — успеваешь приблизить и покрутить.
 // Обычный скрипт с динамическим import(): так он работает и при открытии файла
 // двойным кликом (file://), где браузер блокирует локальные type="module".
 
@@ -60,7 +60,14 @@
     projection.scale(Math.max(BASE_SCALE, Math.min(BASE_SCALE * MAX_ZOOM, scale)));
   }
 
+  const RETURN_DELAY = 10000; // мс без касаний до возврата домой
   let returning = null;
+  let homeTimer = null;
+
+  function goHomeLater() {
+    clearTimeout(homeTimer);
+    homeTimer = setTimeout(goHome, RETURN_DELAY);
+  }
 
   function goHome() {
     const fromRotate = projection.rotate();
@@ -97,6 +104,7 @@
 
   svg.addEventListener("pointerdown", (e) => {
     cancelAnimationFrame(returning);
+    clearTimeout(homeTimer);
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     try {
       svg.setPointerCapture(e.pointerId); // палец может уйти за край глобуса — жест всё равно наш
@@ -125,13 +133,12 @@
     pinch = null; // после щипка оставшийся палец продолжает просто вращать
     if (pointers.size) return;
     wrap.classList.remove("is-dragging");
-    goHome();
+    goHomeLater();
   };
   svg.addEventListener("pointerup", release);
   svg.addEventListener("pointercancel", release);
 
   // Трекпад присылает щипок как wheel с ctrlKey. Обычное колесо не трогаем — им листают страницу
-  let wheelTimer = null;
   svg.addEventListener(
     "wheel",
     (e) => {
@@ -140,8 +147,7 @@
       cancelAnimationFrame(returning);
       zoomTo(projection.scale() * Math.exp(-e.deltaY / 100));
       render();
-      clearTimeout(wheelTimer);
-      wheelTimer = setTimeout(goHome, 900);
+      goHomeLater();
     },
     { passive: false }
   );
