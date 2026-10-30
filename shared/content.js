@@ -9,7 +9,7 @@ window.LINKS = {
   whatsapp: "https://wa.me/79094344999",
   soundcloud: "https://soundcloud.com/fill_the_vxid",
   spotify: "https://open.spotify.com/user/alex4ex",
-  linkedin: "https://linkedin.com/in/TODO",
+  linkedin: "https://www.linkedin.com/in/alexander-chebannyy/",
   music: "https://band.link/fill_the_vxid",
   podcast: "https://4bunny.mave.digital/",
 };
