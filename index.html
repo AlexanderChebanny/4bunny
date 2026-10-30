@@ -118,6 +118,7 @@
   .rows .ic { display: grid; place-items: center; background: rgba(255, 255, 255, .08); }
   .rows .ic svg { width: 24px; height: 24px; }
   .rows .ic.brand { background: none; }
+  .rows img.logo-tile { background: #fff; padding: 6px; object-fit: contain; } /* логотип с прозрачным фоном — на белой плашке, как Instagram */
   .rows .ic.brand svg { width: 40px; height: 40px; }
   .rows .go { margin-left: auto; width: 22px; height: 22px; color: var(--muted); transition: color .2s, transform .2s; }
   .rows a:hover .go { color: var(--cyan); transform: translate(3px, -3px); }
@@ -220,7 +221,7 @@
       <a data-link="music"><img src="assets/img/music.jpg" alt=""><span data-t="music"></span><span class="go" data-icon="arrow"></span></a>
       <a data-link="podcast"><img src="assets/img/podcast.jpg" alt=""><span data-t="podcast"></span><span class="go" data-icon="arrow"></span></a>
       <a data-link="spotify"><span class="ic brand" data-icon="spotifyBrand"></span><span data-t="playlists"></span><span class="go" data-icon="arrow"></span></a>
-      <a data-link="guides"><span class="ic brand" data-icon="notionBrand"></span><span data-t="guides"></span><span class="go" data-icon="arrow"></span></a>
+      <a data-link="guides"><img class="logo-tile" src="assets/img/notion.png" alt=""><span data-t="guides"></span><span class="go" data-icon="arrow"></span></a>
     </section>
 
     <section>
