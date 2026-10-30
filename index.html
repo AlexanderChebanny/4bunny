@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Варианты дизайна</title>
+<style>
+  /* Временная страница: сравнение вариантов в рамке телефона */
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: #1a1a1f; color: #eee; font: 15px/1.4 system-ui, sans-serif;
+    padding: 24px 16px;
+  }
+  .row { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; }
+  figure { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  iframe {
+    width: 390px; height: 844px; border: 0; border-radius: 44px;
+    box-shadow: 0 0 0 10px #000, 0 0 0 11px #333, 0 30px 60px rgba(0,0,0,.6);
+    background: #fff;
+  }
+  figcaption a { color: #fff; font-weight: 600; }
+  figcaption span { color: #999; }
+</style>
+</head>
+<body>
+<div class="row">
+  <figure><iframe src="b.html" title="B"></iframe><figcaption><a href="b.html">B — Жидкий</a> <span>Unbounded + Manrope</span></figcaption></figure>
+  <figure><iframe src="c.html" title="C"></iframe><figcaption><a href="c.html">C — Ночь</a> <span>Onest</span></figcaption></figure>
+</div>
+</body>
+</html>

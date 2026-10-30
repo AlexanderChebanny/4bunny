@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Саша Чебанный</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;800&display=swap" rel="stylesheet">
+<style>
+  /* Вариант A — «Постер»: светлый фон, размытая C-образная волна, огромный гротеск */
+  :root {
+    --bg: #e8e8ea;
+    --ink: #0b0b0f;
+    --muted: #3b3b44;
+    --line: rgba(11, 11, 15, .14);
+    --cyan: #19c3ff;
+    --blue: #4b4dff;
+    --pink: #ffd3f1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.35;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- фон ---------- */
+  .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+  .bg i { position: absolute; display: block; border-radius: 50%; filter: blur(70px); }
+  .bg .wave {
+    width: 110vmax; height: 110vmax;
+    left: -16vmax; top: 4vmax;
+    border: 24vmax solid var(--cyan);
+    border-right-color: transparent;
+    border-top-color: rgba(25, 195, 255, .55);
+    transform: rotate(-18deg);
+    animation: drift 26s ease-in-out infinite alternate;
+  }
+  .bg .glow {
+    width: 70vmax; height: 70vmax;
+    right: -30vmax; top: -25vmax;
+    background: radial-gradient(circle, #fff 0 30%, var(--pink) 55%, transparent 70%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate-reverse;
+  }
+  .bg .deep {
+    width: 55vmax; height: 40vmax;
+    right: -18vmax; bottom: -8vmax;
+    background: radial-gradient(closest-side, var(--blue), rgba(75, 77, 255, 0));
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+  .bg::after {
+    content: ""; position: absolute; inset: -50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: .28;
+    mix-blend-mode: multiply;
+  }
+  @keyframes drift {
+    from { transform: translate(0, 0) rotate(-18deg) scale(1); }
+    to   { transform: translate(4vmax, 3vmax) rotate(-8deg) scale(1.06); }
+  }
+
+  /* ---------- раскладка ---------- */
+  .page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 28px 24px 56px;
+    transition: opacity .18s ease;
+  }
+  .is-switching .page { opacity: 0; }
+
+  .top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    font-size: 17px; font-weight: 500; letter-spacing: -.01em;
+  }
+  .lang {
+    font: inherit; font-weight: 800; font-size: 14px; letter-spacing: .04em;
+    border: 1.5px solid var(--ink); background: transparent; color: var(--ink);
+    border-radius: 999px; padding: 6px 13px; cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .lang:hover { background: var(--ink); color: var(--bg); }
+
+  .hero { padding: 22vh 0 6vh; }
+  .avatar {
+    width: 76px; height: 76px; border-radius: 50%;
+    object-fit: cover; transform: scale(1.03);
+    margin-bottom: 20px;
+    box-shadow: 0 0 0 3px rgba(255,255,255,.6);
+  }
+  h1 {
+    font-weight: 800;
+    font-size: min(15.5vw, 104px);
+    line-height: .88;
+    letter-spacing: -.045em;
+    text-transform: uppercase;
+  }
+  h1 span { display: block; }
+  .role { margin-top: 22px; font-size: 18px; font-weight: 500; max-width: 26ch; }
+  .bio { margin-top: 4px; font-size: 18px; color: var(--muted); max-width: 30ch; }
+
+  .socials { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+  .socials a {
+    width: 46px; height: 46px; display: grid; place-items: center;
+    border-radius: 50%; background: rgba(255,255,255,.55);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition: transform .2s, background .2s;
+  }
+  .socials a:hover { transform: translateY(-2px); background: #fff; }
+  .socials svg { width: 22px; height: 22px; }
+
+  section { margin-top: 56px; }
+  h2 {
+    font-size: 13px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px;
+  }
+  .collab li {
+    list-style: none; font-size: clamp(24px, 6.4vw, 34px); font-weight: 800;
+    letter-spacing: -.03em; line-height: 1.08; padding: 6px 0;
+  }
+
+  .rows a {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 0; border-top: 1px solid var(--line);
+    font-size: 20px; font-weight: 500; letter-spacing: -.01em;
+  }
+  .rows a:last-child { border-bottom: 1px solid var(--line); }
+  .rows img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
+  .rows .ic { width: 40px; height: 40px; display: grid; place-items: center; }
+  .rows .ic svg { width: 26px; height: 26px; }
+  .rows .go { margin-left: auto; width: 22px; height: 22px; transition: transform .2s; }
+  .rows a:hover .go { transform: translate(3px, -3px); }
+
+  .grid {
+    display: grid; grid-template-columns: 1.5fr 1fr 1fr; grid-template-rows: 1fr 1fr;
+    gap: 4px; border-radius: 18px; overflow: hidden; aspect-ratio: 16 / 10;
+  }
+  .grid img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s; }
+  .grid a { overflow: hidden; }
+  .grid a:first-child { grid-row: span 2; }
+  .grid a:hover img { transform: scale(1.05); }
+  .ig-follow { display: inline-flex; gap: 8px; align-items: center; margin-top: 14px; font-weight: 500; }
+  .ig-follow svg { width: 18px; height: 18px; }
+
+  .foot { margin-top: 64px; font-size: 15px; color: var(--muted); line-height: 1.5; }
+
+  @media (prefers-reduced-motion: reduce) { .bg i { animation: none; } }
+</style>
+</head>
+<body>
+<div class="bg"><i class="wave"></i><i class="glow"></i><i class="deep"></i></div>
+
+<main class="page">
+  <header class="top">
+    <div><span data-t="location"></span> —<br><span data-t="tz"></span></div>
+    <button class="lang" data-lang-toggle>EN</button>
+  </header>
+
+  <div class="hero">
+    <img class="avatar" src="assets/img/avatar.jpg" alt="">
+    <h1><span data-t="first"></span><span data-t="last"></span></h1>
+    <p class="role" data-t="role"></p>
+    <p class="bio" data-t="bio"></p>
+    <nav class="socials">
+      <a data-link="telegram" data-icon="telegram" aria-label="Telegram"></a>
+      <a data-link="whatsapp" data-icon="whatsapp" aria-label="WhatsApp"></a>
+      <a data-link="instagram" data-icon="instagram" aria-label="Instagram"></a>
+      <a data-link="youtube" data-icon="youtube" aria-label="YouTube"></a>
+      <a data-link="soundcloud" data-icon="soundcloud" aria-label="SoundCloud"></a>
+      <a data-link="linkedin" data-icon="linkedin" aria-label="LinkedIn"></a>
+    </nav>
+  </div>
+
+  <section>
+    <h2 data-t="collab_title"></h2>
+    <ul class="collab">
+      <li data-t="collab_1"></li>
+      <li data-t="collab_2"></li>
+      <li data-t="collab_3"></li>
+    </ul>
+  </section>
+
+  <section class="rows">
+    <h2 data-t="links_title"></h2>
+    <a data-link="music"><img src="assets/img/music.jpg" alt=""><span data-t="music"></span><span class="go" data-icon="arrow"></span></a>
+    <a data-link="podcast"><img src="assets/img/podcast.jpg" alt=""><span data-t="podcast"></span><span class="go" data-icon="arrow"></span></a>
+    <a data-link="spotify"><span class="ic" data-icon="spotify"></span><span data-t="playlists"></span><span class="go" data-icon="arrow"></span></a>
+    <a data-link="linkedin"><span class="ic" data-icon="linkedin"></span><span data-t="cv"></span><span class="go" data-icon="arrow"></span></a>
+  </section>
+
+  <section>
+    <h2>Instagram</h2>
+    <div class="grid">
+      <a data-link="instagram"><img src="assets/img/ig-1.jpg" alt=""></a>
+      <a data-link="instagram"><img src="assets/img/ig-2.jpg" alt=""></a>
+      <a data-link="instagram"><img src="assets/img/ig-3.jpg" alt=""></a>
+      <a data-link="instagram"><img src="assets/img/ig-4.jpg" alt=""></a>
+      <a data-link="instagram"><img src="assets/img/ig-5.jpg" alt=""></a>
+    </div>
+    <a class="ig-follow" data-link="instagram"><span data-icon="instagram"></span>@fill_the_vxid</a>
+  </section>
+
+  <footer class="foot">
+    Data · Sound · Fashion<br>4bunny
+  </footer>
+</main>
+
+<script src="shared/content.js"></script>
+<script src="shared/icons.js"></script>
+<script src="shared/i18n.js"></script>
+</body>
+</html>

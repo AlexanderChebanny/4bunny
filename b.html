@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Саша Чебанный</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Вариант B — «Жидкий»: палитра аватарки (бирюза + красный), переливающиеся пятна, стекло */
+  :root {
+    --bg: #eef1f0;
+    --ink: #0d1414;
+    --muted: #4a5555;
+    --glass: rgba(255, 255, 255, .42);
+    --glass-edge: rgba(255, 255, 255, .7);
+    --teal: #10c9b9;
+    --aqua: #43b8ff;
+    --red: #ff3a2f;
+    --violet: #9a6bff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.45;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- фон ---------- */
+  .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+  .bg i { position: absolute; display: block; filter: blur(64px); opacity: .85; }
+  .bg .b1 {
+    width: 70vmax; height: 70vmax; left: -25vmax; top: -20vmax;
+    background: var(--teal);
+    border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+    animation: morph 18s ease-in-out infinite alternate, float1 24s ease-in-out infinite alternate;
+  }
+  .bg .b2 {
+    width: 55vmax; height: 55vmax; right: -22vmax; top: 18vh;
+    background: var(--aqua);
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    animation: morph 22s ease-in-out infinite alternate-reverse, float2 28s ease-in-out infinite alternate;
+  }
+  .bg .b3 {
+    width: 34vmax; height: 34vmax; left: 10vw; bottom: -12vmax;
+    background: var(--red); opacity: .7;
+    border-radius: 50% 50% 40% 60% / 40% 60% 40% 60%;
+    animation: morph 16s ease-in-out infinite alternate, float1 20s ease-in-out infinite alternate-reverse;
+  }
+  .bg .b4 {
+    width: 30vmax; height: 30vmax; right: 5vw; bottom: 15vh;
+    background: var(--violet); opacity: .55;
+    border-radius: 50%;
+    animation: float2 26s ease-in-out infinite alternate-reverse;
+  }
+  .bg::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: .22; mix-blend-mode: overlay;
+  }
+  @keyframes morph {
+    to { border-radius: 63% 37% 45% 55% / 52% 63% 37% 48%; }
+  }
+  @keyframes float1 { to { transform: translate(8vw, 6vh) rotate(25deg); } }
+  @keyframes float2 { to { transform: translate(-6vw, -8vh) rotate(-30deg); } }
+
+  /* ---------- раскладка ---------- */
+  .page {
+    max-width: 520px; margin: 0 auto; padding: 20px 16px 48px;
+    transition: opacity .18s ease, filter .18s ease;
+  }
+  .is-switching .page { opacity: 0; filter: blur(6px); }
+
+  .glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-edge);
+    border-radius: 26px;
+    backdrop-filter: blur(22px) saturate(1.4);
+    -webkit-backdrop-filter: blur(22px) saturate(1.4);
+    box-shadow: 0 10px 40px -12px rgba(13, 40, 40, .18);
+  }
+
+  .top { display: flex; justify-content: flex-end; }
+  .lang {
+    font: 600 13px/1 "Unbounded", sans-serif; letter-spacing: .06em;
+    padding: 11px 15px; cursor: pointer; color: var(--ink);
+  }
+
+  .hero { text-align: center; padding: 18px 0 8px; }
+  .ava {
+    width: 128px; height: 128px; margin: 0 auto; border-radius: 50%; padding: 4px;
+    background: conic-gradient(from 0deg, var(--teal), var(--aqua), var(--violet), var(--red), var(--teal));
+    animation: spin 8s linear infinite;
+  }
+  .ava img {
+    width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;
+    border: 3px solid var(--bg); animation: spin 8s linear infinite reverse;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  h1 {
+    font-family: "Unbounded", sans-serif; font-weight: 700;
+    font-size: clamp(28px, 8.4vw, 40px); line-height: 1.05; letter-spacing: -.02em;
+    margin-top: 22px;
+  }
+  .role { margin-top: 12px; font-size: 17px; font-weight: 600; }
+  .bio { color: var(--muted); font-size: 16px; }
+  .where {
+    display: inline-flex; gap: 8px; align-items: center; margin-top: 14px;
+    font-size: 13px; font-weight: 600; padding: 7px 14px;
+  }
+  .where::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%; background: #18c964;
+    box-shadow: 0 0 0 4px rgba(24, 201, 100, .2);
+  }
+
+  .socials { display: flex; justify-content: center; gap: 8px; margin: 22px 0 6px; flex-wrap: wrap; }
+  .socials a {
+    width: 50px; height: 50px; display: grid; place-items: center; border-radius: 18px;
+    transition: transform .25s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .socials a:hover { transform: translateY(-3px) scale(1.06); }
+  .socials svg { width: 23px; height: 23px; }
+
+  .card { margin-top: 14px; padding: 20px; }
+  h2 {
+    font-family: "Unbounded", sans-serif; font-weight: 500; font-size: 13px;
+    letter-spacing: .04em; text-transform: uppercase; margin-bottom: 14px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips li {
+    list-style: none; padding: 10px 14px; border-radius: 999px;
+    background: rgba(255, 255, 255, .7); font-weight: 600; font-size: 15px;
+  }
+  .chips li:nth-child(1)::before { content: "◆ "; color: var(--teal); }
+  .chips li:nth-child(2)::before { content: "◆ "; color: var(--violet); }
+  .chips li:nth-child(3)::before { content: "◆ "; color: var(--red); }
+
+  .link {
+    display: flex; align-items: center; gap: 14px; margin-top: 10px; padding: 10px;
+    font-weight: 600; font-size: 17px;
+    transition: transform .2s, background .2s;
+  }
+  .link:hover { transform: scale(1.015); background: rgba(255, 255, 255, .62); }
+  .link img, .link .ic { width: 52px; height: 52px; border-radius: 16px; object-fit: cover; flex: none; }
+  .link .ic { display: grid; place-items: center; background: rgba(255, 255, 255, .7); }
+  .link .ic svg { width: 26px; height: 26px; }
+  .link .go { margin-left: auto; margin-right: 8px; width: 20px; height: 20px; opacity: .5; }
+
+  .grid {
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-rows: 1fr 1fr;
+    gap: 3px; border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 3;
+  }
+  .grid a { overflow: hidden; }
+  .grid a:first-child { grid-row: span 2; }
+  .grid img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s; }
+  .grid a:hover img { transform: scale(1.06); }
+  .ig-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; }
+  .ig-meta .h { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; }
+  .ig-meta .h svg { width: 18px; height: 18px; }
+  .btn {
+    font-family: "Unbounded", sans-serif; font-size: 12px; font-weight: 500;
+    padding: 10px 14px; border-radius: 999px; background: var(--ink); color: #fff;
+    white-space: nowrap;
+  }
+
+  .foot { text-align: center; margin-top: 36px; font: 500 12px "Unbounded", sans-serif; opacity: .5; letter-spacing: .1em; }
+
+  /* ---------- десктоп: профиль слева (прилипает), контент справа ---------- */
+  @media (min-width: 960px) {
+    .page {
+      max-width: 1120px; padding: 32px 40px 56px;
+      display: grid; grid-template-columns: 400px 1fr; column-gap: 48px; align-items: start;
+    }
+    .top, .foot { grid-column: 1 / -1; }
+    .hero { position: sticky; top: 40px; padding-top: 40px; }
+    .ava { width: 168px; height: 168px; }
+    h1 { font-size: 42px; }
+    .content { padding-top: 40px; }
+    .content > :first-child { margin-top: 0; }
+    .card { padding: 26px; }
+    .link { padding: 12px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .bg i, .ava, .ava img { animation: none; } }
+</style>
+</head>
+<body>
+<div class="bg"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i></div>
+
+<main class="page">
+  <div class="top"><button class="lang glass" data-lang-toggle>EN</button></div>
+
+  <aside class="hero">
+    <div class="ava"><img src="assets/img/avatar.jpg" alt=""></div>
+    <h1 data-t="name"></h1>
+    <p class="role" data-t="role"></p>
+    <p class="bio" data-t="bio"></p>
+    <div class="where glass"><span data-t="location"></span><span>·</span><span data-tz></span></div>
+    <nav class="socials">
+      <a class="glass" data-link="telegram" data-icon="telegram" aria-label="Telegram"></a>
+      <a class="glass" data-link="whatsapp" data-icon="whatsapp" aria-label="WhatsApp"></a>
+      <a class="glass" data-link="instagram" data-icon="instagram" aria-label="Instagram"></a>
+      <a class="glass" data-link="youtube" data-icon="youtube" aria-label="YouTube"></a>
+      <a class="glass" data-link="soundcloud" data-icon="soundcloud" aria-label="SoundCloud"></a>
+      <a class="glass" data-link="linkedin" data-icon="linkedin" aria-label="LinkedIn"></a>
+    </nav>
+  </aside>
+
+  <div class="content">
+  <section class="card glass">
+    <h2>👯 <span data-t="collab_title"></span></h2>
+    <ul class="chips">
+      <li data-t="collab_1"></li>
+      <li data-t="collab_2"></li>
+      <li data-t="collab_3"></li>
+    </ul>
+  </section>
+
+  <a class="link glass" data-link="music"><img src="assets/img/music.jpg" alt=""><span data-t="music"></span><span class="go" data-icon="arrow"></span></a>
+  <a class="link glass" data-link="podcast"><img src="assets/img/podcast.jpg" alt=""><span data-t="podcast"></span><span class="go" data-icon="arrow"></span></a>
+  <a class="link glass" data-link="spotify"><span class="ic" data-icon="spotify"></span><span data-t="playlists"></span><span class="go" data-icon="arrow"></span></a>
+  <a class="link glass" data-link="linkedin"><span class="ic" data-icon="linkedin"></span><span data-t="cv"></span><span class="go" data-icon="arrow"></span></a>
+
+  <section class="card glass">
+    <div class="grid">
+      <a data-link="instagram"><img src="assets/img/ig-1.jpg" alt=""></a>
+      <a data-link="instagram"><img src="assets/img/ig-2.jpg" alt=""></a>
+      <a data-link="instagram"><img src="assets/img/ig-3.jpg" alt=""></a>
+      <a data-link="instagram"><img src="assets/img/ig-4.jpg" alt=""></a>
+      <a data-link="instagram"><img src="assets/img/ig-5.jpg" alt=""></a>
+    </div>
+    <div class="ig-meta">
+      <span class="h"><span data-icon="instagram"></span>fill_the_vxid</span>
+      <a class="btn" data-link="instagram" data-t="ig_follow"></a>
+    </div>
+  </section>
+  </div>
+
+  <footer class="foot">4BUNNY</footer>
+</main>
+
+<script src="shared/content.js"></script>
+<script src="shared/icons.js"></script>
+<script src="shared/i18n.js"></script>
+<script src="shared/location.js"></script>
+</body>
+</html>
