@@ -147,25 +147,20 @@
     font-size: 13px; color: var(--muted); font-weight: 400; letter-spacing: 0; flex: none;
   }
 
-  /* ---------- глобус: точка локации всегда в центре ---------- */
-  .globe { position: relative; width: 100%; max-width: 420px; aspect-ratio: 1; margin: 0 auto; }
-  .globe canvas {
-    width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease;
+  /* ---------- глобус: контуры стран, точка локации в центре ---------- */
+  .globe { width: 100%; max-width: 420px; aspect-ratio: 1; margin: 0 auto; }
+  .globe svg {
+    display: block; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease;
     cursor: grab; touch-action: pan-y; /* по вертикали палец скроллит страницу, по горизонтали крутит глобус */
   }
-  .globe.is-dragging canvas { cursor: grabbing; }
-  .globe .pulse {
-    position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px;
-    border-radius: 50%; background: var(--cyan); box-shadow: 0 0 16px var(--cyan);
-    opacity: 0; transition: opacity 1.2s ease;
+  .globe.is-dragging svg { cursor: grabbing; }
+  .globe.is-ready svg { opacity: 1; }
+  .globe .core { fill: #fff; filter: drop-shadow(0 0 4px var(--cyan)); } /* белая, чтобы не сливаться с голубой заливкой страны */
+  .globe .ring {
+    fill: none; stroke: var(--cyan); stroke-width: 1.5;
+    transform-box: fill-box; transform-origin: center; animation: ping 2.4s ease-out infinite;
   }
-  .globe .pulse::after {
-    content: ""; position: absolute; inset: 0; border-radius: 50%;
-    border: 2px solid var(--cyan); animation: ping 2.4s ease-out infinite;
-  }
-  .globe.is-ready canvas, .globe.is-ready .pulse { opacity: 1; }
-  .globe.is-ready.is-off .pulse { opacity: 0; transition-duration: .2s; } /* пока глобус повёрнут, точку показывает маркер на нём */
-  @keyframes ping { from { transform: scale(1); opacity: .9; } to { transform: scale(5); opacity: 0; } }
+  @keyframes ping { from { transform: scale(1); opacity: .9; } to { transform: scale(4); opacity: 0; } }
 
   .foot {
     margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line);
@@ -188,7 +183,7 @@
     .foot { margin-top: 96px; }
   }
 
-  @media (prefers-reduced-motion: reduce) { .bg i, .globe .pulse::after { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .bg i, .globe .ring { animation: none; } }
 </style>
 </head>
 <body>
@@ -252,8 +247,20 @@
 
     <section>
       <div class="globe" data-globe-wrap>
-        <canvas data-globe></canvas>
-        <span class="pulse"></span>
+        <svg viewBox="0 0 400 400" aria-hidden="true">
+          <defs>
+            <radialGradient id="globe-sphere" cx="40%" cy="35%">
+              <stop offset="0%" stop-color="#141a33"/><stop offset="100%" stop-color="#05060c"/>
+            </radialGradient>
+            <filter id="globe-glow"><feGaussianBlur stdDeviation="6"/></filter>
+          </defs>
+          <circle cx="200" cy="200" r="178" fill="none" stroke="#3b5bff" stroke-width="6" opacity=".7" filter="url(#globe-glow)"/>
+          <circle cx="200" cy="200" r="176" fill="url(#globe-sphere)"/>
+          <path data-graticule fill="none" stroke="rgba(255,255,255,.06)" stroke-width=".5"/>
+          <path data-land fill="rgba(255,255,255,.035)" stroke="rgba(255,255,255,.28)" stroke-width=".45"/>
+          <path data-home fill="rgba(24,212,255,.35)" stroke="#18d4ff" stroke-width="1.2"/>
+          <g data-dot><circle class="ring" r="3.4"/><circle class="core" r="3.4"/></g>
+        </svg>
       </div>
     </section>
   </div>

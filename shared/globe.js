@@ -1,4 +1,6 @@
-// Глобус (cobe, WebGL) с точкой текущей локации в центре. Координаты — из window.GEO.
+// Глобус с контурами стран (d3-geo, SVG). Центр — текущая локация из window.GEO,
+// страна, в которую попадает точка, подсвечивается. Крутится перетаскиванием и
+// плавно возвращается домой.
 // Обычный скрипт с динамическим import(): так он работает и при открытии файла
 // двойным кликом (file://), где браузер блокирует локальные type="module".
 
@@ -6,69 +8,80 @@
   const wrap = document.querySelector("[data-globe-wrap]");
   if (!wrap) return;
 
-  const [{ default: createGlobe }, { lat, lon }] = await Promise.all([
-    import("https://cdn.jsdelivr.net/npm/cobe@0.6.5/+esm"),
+  const [d3, topojson, world, { lat, lon }] = await Promise.all([
+    import("https://cdn.jsdelivr.net/npm/d3-geo@3.1.1/+esm"),
+    import("https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/+esm"),
+    fetch("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json").then((r) => r.json()),
     window.GEO,
   ]);
-  const canvas = wrap.querySelector("canvas");
 
-  // Повороты, при которых точка (lat, lon) смотрит прямо на зрителя
-  const phi = Math.PI - ((lon * Math.PI) / 180 - Math.PI / 2);
-  const theta = (lat * Math.PI) / 180;
+  const svg = wrap.querySelector("svg");
+  const el = (name) => svg.querySelector(`[data-${name}]`);
+  const graticuleEl = el("graticule");
+  const landEl = el("land");
+  const homeEl = el("home");
+  const dotEl = el("dot");
 
-  let size = canvas.offsetWidth;
-  addEventListener("resize", () => (size = canvas.offsetWidth));
+  const here = [lon, lat];
+  const home = [-lon, -lat]; // поворот, при котором точка смотрит прямо на зрителя
+  const projection = d3.geoOrthographic().scale(176).translate([200, 200]).rotate(home);
+  const path = d3.geoPath(projection);
 
-  // Перетаскивание: копим смещение от исходного поворота, после отпускания
-  // оно плавно затухает и точка возвращается в центр
+  // Страну находим по координатам: в какой контур попала точка. На упрощённой карте
+  // мелкие острова и самые края побережья могут не попасть — тогда просто без подсветки.
+  const countries = topojson.feature(world, world.objects.countries).features;
+  const homeCountry = countries.find((f) => d3.geoContains(f, here));
+  const land = { type: "FeatureCollection", features: countries.filter((f) => f !== homeCountry) };
+  const graticule = d3.geoGraticule10();
+
+  function render() {
+    graticuleEl.setAttribute("d", path(graticule));
+    landEl.setAttribute("d", path(land));
+    homeEl.setAttribute("d", homeCountry ? path(homeCountry) || "" : "");
+    const [x, y] = projection(here);
+    const facing = d3.geoDistance(here, projection.invert([200, 200])) < Math.PI / 2;
+    dotEl.setAttribute("transform", `translate(${x},${y})`);
+    dotEl.style.opacity = facing ? 1 : 0;
+  }
+
+  // Перетаскивание: 0.35° поворота на пиксель, наклон ограничен, чтобы не перевернуть глобус
   let last = null;
-  let offPhi = 0;
-  let offTheta = 0;
+  let returning = null;
 
-  canvas.addEventListener("pointerdown", (e) => {
+  svg.addEventListener("pointerdown", (e) => {
+    cancelAnimationFrame(returning);
     last = { x: e.clientX, y: e.clientY };
-    canvas.setPointerCapture(e.pointerId);
+    svg.setPointerCapture(e.pointerId);
     wrap.classList.add("is-dragging");
   });
-  canvas.addEventListener("pointermove", (e) => {
+  svg.addEventListener("pointermove", (e) => {
     if (!last) return;
-    offPhi += (e.clientX - last.x) / 150;
-    offTheta = Math.max(-0.8, Math.min(0.8, offTheta + (e.clientY - last.y) / 300));
+    const [lambda, phi] = projection.rotate();
+    projection.rotate([
+      lambda + (e.clientX - last.x) * 0.35,
+      Math.max(-80, Math.min(80, phi - (e.clientY - last.y) * 0.35)),
+    ]);
     last = { x: e.clientX, y: e.clientY };
+    render();
   });
   const release = () => {
+    if (!last) return;
     last = null;
     wrap.classList.remove("is-dragging");
+    const from = projection.rotate();
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / 1100);
+      const k = 1 - Math.pow(1 - t, 3); // ease-out
+      projection.rotate([from[0] + (home[0] - from[0]) * k, from[1] + (home[1] - from[1]) * k]);
+      render();
+      if (t < 1) returning = requestAnimationFrame(step);
+    };
+    returning = requestAnimationFrame(step);
   };
-  canvas.addEventListener("pointerup", release);
-  canvas.addEventListener("pointercancel", release);
+  svg.addEventListener("pointerup", release);
+  svg.addEventListener("pointercancel", release);
 
-  createGlobe(canvas, {
-    devicePixelRatio: 2,
-    width: size * 2,
-    height: size * 2,
-    phi,
-    theta,
-    dark: 1,
-    diffuse: 1.2,
-    mapSamples: 16000,
-    mapBrightness: 5,
-    baseColor: [0.32, 0.32, 0.42],
-    markerColor: [0.1, 0.83, 1],
-    glowColor: [0.22, 0.28, 0.75],
-    markers: [{ location: [lat, lon], size: 0.05 }],
-    onRender(state) {
-      if (!last) {
-        offPhi *= 0.93;
-        offTheta *= 0.93;
-      }
-      state.phi = phi + offPhi;
-      state.theta = theta + offTheta;
-      wrap.classList.toggle("is-off", Math.abs(offPhi) + Math.abs(offTheta) > 0.03);
-      state.width = size * 2;
-      state.height = size * 2;
-    },
-  });
-
+  render();
   wrap.classList.add("is-ready");
 })().catch((err) => console.warn("Глобус не загрузился:", err));
