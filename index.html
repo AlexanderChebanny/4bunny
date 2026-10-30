@@ -4,10 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Саша Чебанный</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<link rel="preload" href="assets/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  /* Onest (OFL) лежит в репозитории: без запроса к Google Fonts, который блокировал скрипты.
+     Шрифт вариативный — один файл на все начертания 300–800 */
+  @font-face {
+    font-family: "Onest"; font-style: normal; font-weight: 300 800; font-display: swap;
+    src: url(assets/fonts/onest-cyrillic.woff2) format("woff2");
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+  }
+  @font-face {
+    font-family: "Onest"; font-style: normal; font-weight: 300 800; font-display: swap;
+    src: url(assets/fonts/onest-latin.woff2) format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
   /* «Ночь»: тёмный фон, светящиеся пятна, редакционная типографика */
   :root {
     --bg: #07070b;
@@ -275,6 +287,10 @@
 <script src="shared/icons.js"></script>
 <script src="shared/i18n.js"></script>
 <script src="shared/location.js"></script>
+<script src="assets/vendor/d3-array.min.js"></script>
+<script src="assets/vendor/d3-geo.min.js"></script>
+<script src="assets/vendor/topojson-client.min.js"></script>
+<script src="assets/vendor/countries-110m.js"></script>
 <script src="shared/globe.js"></script>
 </body>
 </html>
