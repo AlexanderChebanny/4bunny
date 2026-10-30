@@ -17,6 +17,8 @@ window.ICONS = {
   linkedin: s(
     `<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 10.5V17M8 7.4v.1M11.6 17v-6.5M11.6 13.4c0-1.7 1-2.9 2.5-2.9s2.4 1.1 2.4 2.9V17"/>`
   ),
+  // Фирменный глиф Instagram, монохромный: чёрный на белой плашке
+  instagramBrand: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6.5" fill="#fff"/><g fill="none" stroke="#000" stroke-width="1.9"><rect x="4.6" y="4.6" width="14.8" height="14.8" rx="4.4"/><circle cx="12" cy="12" r="3.6"/></g><circle cx="16.3" cy="7.7" r="1.05" fill="#000"/></svg>`,
   // Фирменный логотип: зелёный круг с тёмными дугами
   spotifyBrand: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#1ED760"/><path d="M6.6 9.2c3.6-1.1 7.7-.8 11 1.1M7.4 12.5c3-.8 6.2-.5 8.7 1M8.2 15.6c2.2-.6 4.5-.4 6.4.7" fill="none" stroke="#000" stroke-width="1.9" stroke-linecap="round"/></svg>`,
   arrow: s(`<path d="M7 17 17 7M8.5 7H17v8.5"/>`),
