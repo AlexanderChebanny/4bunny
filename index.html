@@ -3,29 +3,265 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Варианты дизайна</title>
+<title>Саша Чебанный</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <style>
-  /* Временная страница: сравнение вариантов в рамке телефона */
-  * { box-sizing: border-box; margin: 0; }
+  /* «Ночь»: тёмный фон, светящиеся пятна, редакционная типографика */
+  :root {
+    --bg: #07070b;
+    --ink: #f4f3f7;
+    --muted: #9b9aa8;
+    --line: rgba(255, 255, 255, .12);
+    --blue: #2f5bff;
+    --cyan: #18d4ff;
+    --magenta: #ff2fb9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    background: #1a1a1f; color: #eee; font: 15px/1.4 system-ui, sans-serif;
-    padding: 24px 16px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Onest", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
-  .row { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; }
-  figure { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-  iframe {
-    width: 390px; height: 844px; border: 0; border-radius: 44px;
-    box-shadow: 0 0 0 10px #000, 0 0 0 11px #333, 0 30px 60px rgba(0,0,0,.6);
-    background: #fff;
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- фон ---------- */
+  .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+  .bg i { position: absolute; display: block; border-radius: 50%; filter: blur(80px); mix-blend-mode: screen; }
+  .bg .c1 {
+    width: 80vmax; height: 80vmax; left: -30vmax; top: -30vmax;
+    background: radial-gradient(closest-side, var(--blue), transparent);
+    animation: a1 20s ease-in-out infinite alternate;
   }
-  figcaption a { color: #fff; font-weight: 600; }
-  figcaption span { color: #999; }
+  .bg .c2 {
+    width: 50vmax; height: 50vmax; right: -18vmax; top: 22vh;
+    background: radial-gradient(closest-side, var(--cyan), transparent);
+    opacity: .75;
+    animation: a2 24s ease-in-out infinite alternate;
+  }
+  .bg .c3 {
+    width: 45vmax; height: 45vmax; left: -10vmax; bottom: -20vmax;
+    background: radial-gradient(closest-side, var(--magenta), transparent);
+    opacity: .7;
+    animation: a1 28s ease-in-out infinite alternate-reverse;
+  }
+  .bg::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: .16; mix-blend-mode: overlay;
+  }
+  @keyframes a1 { to { transform: translate(12vw, 10vh) scale(1.15); } }
+  @keyframes a2 { to { transform: translate(-14vw, 12vh) scale(.9); } }
+
+  /* ---------- раскладка ---------- */
+  .page {
+    max-width: 620px; margin: 0 auto; padding: 24px 20px 40px;
+    transition: opacity .18s ease;
+  }
+  .is-switching .page { opacity: 0; }
+
+  .top { display: flex; justify-content: flex-end; }
+  .lang {
+    font: 500 14px "Onest", sans-serif; color: var(--ink); cursor: pointer;
+    background: rgba(255, 255, 255, .08); border: 1px solid var(--line);
+    border-radius: 999px; padding: 7px 14px;
+    transition: background .2s;
+  }
+  .lang:hover { background: rgba(255, 255, 255, .18); }
+
+  .hero { padding: 14vh 0 4vh; }
+  .hero-row { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
+  .avatar { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; transform: scale(1.03); }
+  .where { font-size: 14px; color: var(--muted); line-height: 1.3; }
+  .where b { color: var(--ink); font-weight: 500; }
+  h1 {
+    font-weight: 800; font-size: clamp(48px, 15vw, 96px);
+    line-height: .9; letter-spacing: -.05em;
+  }
+  h1 span { display: block; }
+  h1 span:last-child {
+    background: linear-gradient(90deg, var(--cyan), #a99bff 50%, var(--magenta));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .role { margin-top: 24px; font-size: 20px; font-weight: 500; max-width: 24ch; }
+  .bio { margin-top: 6px; font-size: 18px; font-weight: 300; color: var(--muted); max-width: 30ch; }
+
+  /* Иконки делят ширину колонки поровну, поэтому ряд ровно от края до края */
+  .socials { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 30px; }
+  .socials a {
+    aspect-ratio: 1; display: grid; place-items: center; border-radius: 18px;
+    background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .16);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    transition: transform .25s cubic-bezier(.3, 1.6, .5, 1), background .2s;
+  }
+  .socials a:hover { transform: translateY(-3px) scale(1.06); background: rgba(255, 255, 255, .16); }
+  .socials svg { width: 23px; height: 23px; }
+
+  section { margin-top: 64px; }
+  h2 {
+    font-size: 13px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 18px;
+  }
+
+  .rows a {
+    display: flex; align-items: center; gap: 16px; padding: 14px 0;
+    border-top: 1px solid var(--line); font-size: 20px; font-weight: 500;
+    transition: padding .25s;
+  }
+  .rows a:last-child { border-bottom: 1px solid var(--line); }
+  .rows a:hover { padding-left: 8px; }
+  .rows img, .rows .ic { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; flex: none; }
+  .rows .ic { display: grid; place-items: center; background: rgba(255, 255, 255, .08); }
+  .rows .ic svg { width: 24px; height: 24px; }
+  .rows .ic.brand { background: none; }
+  .rows .ic.brand svg { width: 40px; height: 40px; }
+  .rows .go { margin-left: auto; width: 22px; height: 22px; color: var(--muted); transition: color .2s, transform .2s; }
+  .rows a:hover .go { color: var(--cyan); transform: translate(3px, -3px); }
+
+  /* 5 фото: большое портретное (3:4) на две строки слева, справа 2x2 квадрата */
+  .grid {
+    display: grid; grid-template-columns: 1.5fr 1fr 1fr; grid-template-rows: 1fr 1fr;
+    gap: 4px; border-radius: 16px; overflow: hidden; aspect-ratio: 7 / 4;
+  }
+  .grid a { overflow: hidden; }
+  .grid a:first-child { grid-row: span 2; }
+  .grid img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s, filter .5s; filter: saturate(.85); }
+  .grid a:hover img { transform: scale(1.05); filter: saturate(1.1); }
+  .ig-follow { display: inline-flex; gap: 8px; align-items: center; margin-top: 14px; color: var(--muted); font-size: 15px; }
+  .ig-follow:hover { color: var(--ink); }
+  .ig-follow [data-icon] { display: flex; } /* иначе svg садится на базовую линию текста и уезжает вверх */
+  .ig-follow svg { width: 18px; height: 18px; }
+
+  .collab { counter-reset: n; }
+  .collab li {
+    list-style: none; display: flex; gap: 16px; align-items: baseline;
+    padding: 14px 0; border-top: 1px solid var(--line);
+    font-size: clamp(22px, 5.6vw, 30px); font-weight: 500; letter-spacing: -.02em; line-height: 1.15;
+  }
+  .collab li::before {
+    counter-increment: n; content: "0" counter(n);
+    font-size: 13px; color: var(--muted); font-weight: 400; letter-spacing: 0; flex: none;
+  }
+
+  /* ---------- глобус: точка локации всегда в центре ---------- */
+  .globe { position: relative; width: 100%; max-width: 420px; aspect-ratio: 1; margin: 0 auto; }
+  .globe canvas { width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease; }
+  .globe .pulse {
+    position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px;
+    border-radius: 50%; background: var(--cyan); box-shadow: 0 0 16px var(--cyan);
+    opacity: 0; transition: opacity 1.2s ease;
+  }
+  .globe .pulse::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    border: 2px solid var(--cyan); animation: ping 2.4s ease-out infinite;
+  }
+  .globe.is-ready canvas, .globe.is-ready .pulse { opacity: 1; }
+  @keyframes ping { from { transform: scale(1); opacity: .9; } to { transform: scale(5); opacity: 0; } }
+
+  .foot {
+    margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line);
+    font-size: 13px; color: var(--muted); display: flex; justify-content: space-between;
+  }
+
+  /* ---------- десктоп: огромное имя на всю ширину, ниже пары колонок ---------- */
+  @media (min-width: 960px) {
+    .page { max-width: 1200px; padding: 32px 48px 40px; }
+    .hero {
+      padding: 12vh 0 2vh;
+      display: grid; grid-template-columns: 1fr 380px; column-gap: 48px; align-items: end;
+    }
+    .hero-row { grid-column: 1 / -1; }
+    h1 { font-size: clamp(96px, 10.5vw, 168px); }
+    .intro .role { margin-top: 0; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; margin-top: 96px; align-items: start; }
+    .cols section { margin-top: 0; }
+    .cols-bottom { align-items: center; }
+    .foot { margin-top: 96px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .bg i, .globe .pulse::after { animation: none; } }
 </style>
 </head>
 <body>
-<div class="row">
-  <figure><iframe src="b.html" title="B"></iframe><figcaption><a href="b.html">B — Жидкий</a> <span>Unbounded + Manrope</span></figcaption></figure>
-  <figure><iframe src="c.html" title="C"></iframe><figcaption><a href="c.html">C — Ночь</a> <span>Onest</span></figcaption></figure>
-</div>
+<div class="bg"><i class="c1"></i><i class="c2"></i><i class="c3"></i></div>
+
+<main class="page">
+  <header class="top">
+    <button class="lang" data-lang-toggle>EN</button>
+  </header>
+
+  <div class="hero">
+    <div class="hero-row">
+      <img class="avatar" src="assets/img/avatar.jpg" alt="">
+      <div class="where"><b data-t="location"></b><br><span data-tz></span></div>
+    </div>
+    <h1><span data-t="first"></span><span data-t="last"></span></h1>
+    <div class="intro">
+      <p class="role" data-t="role"></p>
+      <p class="bio" data-t="bio"></p>
+      <nav class="socials">
+        <a data-link="telegram" data-icon="telegram" aria-label="Telegram"></a>
+        <a data-link="whatsapp" data-icon="whatsapp" aria-label="WhatsApp"></a>
+        <a data-link="instagram" data-icon="instagram" aria-label="Instagram"></a>
+        <a data-link="soundcloud" data-icon="soundcloud" aria-label="SoundCloud"></a>
+        <a data-link="linkedin" data-icon="linkedin" aria-label="LinkedIn"></a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="cols">
+    <section class="rows">
+      <h2 data-t="links_title"></h2>
+      <a data-link="instagram"><span class="ic" data-icon="instagram"></span><span>Instagram</span><span class="go" data-icon="arrow"></span></a>
+      <a data-link="music"><img src="assets/img/music.jpg" alt=""><span data-t="music"></span><span class="go" data-icon="arrow"></span></a>
+      <a data-link="podcast"><img src="assets/img/podcast.jpg" alt=""><span data-t="podcast"></span><span class="go" data-icon="arrow"></span></a>
+      <a data-link="spotify"><span class="ic brand" data-icon="spotifyBrand"></span><span data-t="playlists"></span><span class="go" data-icon="arrow"></span></a>
+    </section>
+
+    <section>
+      <h2>Instagram</h2>
+      <div class="grid">
+        <a data-link="instagram"><img src="assets/img/ig-1.jpg" alt=""></a>
+        <a data-link="instagram"><img src="assets/img/ig-2.jpg" alt=""></a>
+        <a data-link="instagram"><img src="assets/img/ig-3.jpg" alt=""></a>
+        <a data-link="instagram"><img src="assets/img/ig-4.jpg" alt=""></a>
+        <a data-link="instagram"><img src="assets/img/ig-5.jpg" alt=""></a>
+      </div>
+      <a class="ig-follow" data-link="instagram"><span data-icon="instagram"></span>@fill_the_vxid</a>
+    </section>
+  </div>
+
+  <div class="cols cols-bottom">
+    <section>
+      <h2 data-t="collab_title"></h2>
+      <ul class="collab">
+        <li data-t="collab_1"></li>
+        <li data-t="collab_2"></li>
+        <li data-t="collab_3"></li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="globe" data-globe-wrap>
+        <canvas data-globe></canvas>
+        <span class="pulse"></span>
+      </div>
+    </section>
+  </div>
+
+  <footer class="foot"><span>Data · Sound · Fashion</span></footer>
+</main>
+
+<script src="shared/content.js"></script>
+<script src="shared/icons.js"></script>
+<script src="shared/i18n.js"></script>
+<script src="shared/location.js"></script>
+<script src="shared/globe.js"></script>
 </body>
 </html>
