@@ -52,11 +52,7 @@
       btn.addEventListener("click", () => {
         lang = lang === "ru" ? "en" : "ru";
         save(lang);
-        document.body.classList.add("is-switching");
-        setTimeout(() => {
-          apply(lang);
-          document.body.classList.remove("is-switching");
-        }, 180);
+        apply(lang);
       })
     );
   }

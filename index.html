@@ -62,9 +62,7 @@
   /* ---------- раскладка ---------- */
   .page {
     max-width: 620px; margin: 0 auto; padding: 24px 20px 40px;
-    transition: opacity .18s ease;
   }
-  .is-switching .page { opacity: 0; }
 
   .top { display: flex; justify-content: flex-end; }
   .lang {
@@ -151,7 +149,11 @@
 
   /* ---------- глобус: точка локации всегда в центре ---------- */
   .globe { position: relative; width: 100%; max-width: 420px; aspect-ratio: 1; margin: 0 auto; }
-  .globe canvas { width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease; }
+  .globe canvas {
+    width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease;
+    cursor: grab; touch-action: pan-y; /* по вертикали палец скроллит страницу, по горизонтали крутит глобус */
+  }
+  .globe.is-dragging canvas { cursor: grabbing; }
   .globe .pulse {
     position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px;
     border-radius: 50%; background: var(--cyan); box-shadow: 0 0 16px var(--cyan);
@@ -162,6 +164,7 @@
     border: 2px solid var(--cyan); animation: ping 2.4s ease-out infinite;
   }
   .globe.is-ready canvas, .globe.is-ready .pulse { opacity: 1; }
+  .globe.is-ready.is-off .pulse { opacity: 0; transition-duration: .2s; } /* пока глобус повёрнут, точку показывает маркер на нём */
   @keyframes ping { from { transform: scale(1); opacity: .9; } to { transform: scale(5); opacity: 0; } }
 
   .foot {

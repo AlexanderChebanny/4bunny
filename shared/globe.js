@@ -19,6 +19,30 @@
   let size = canvas.offsetWidth;
   addEventListener("resize", () => (size = canvas.offsetWidth));
 
+  // Перетаскивание: копим смещение от исходного поворота, после отпускания
+  // оно плавно затухает и точка возвращается в центр
+  let last = null;
+  let offPhi = 0;
+  let offTheta = 0;
+
+  canvas.addEventListener("pointerdown", (e) => {
+    last = { x: e.clientX, y: e.clientY };
+    canvas.setPointerCapture(e.pointerId);
+    wrap.classList.add("is-dragging");
+  });
+  canvas.addEventListener("pointermove", (e) => {
+    if (!last) return;
+    offPhi += (e.clientX - last.x) / 150;
+    offTheta = Math.max(-0.8, Math.min(0.8, offTheta + (e.clientY - last.y) / 300));
+    last = { x: e.clientX, y: e.clientY };
+  });
+  const release = () => {
+    last = null;
+    wrap.classList.remove("is-dragging");
+  };
+  canvas.addEventListener("pointerup", release);
+  canvas.addEventListener("pointercancel", release);
+
   createGlobe(canvas, {
     devicePixelRatio: 2,
     width: size * 2,
@@ -32,8 +56,15 @@
     baseColor: [0.32, 0.32, 0.42],
     markerColor: [0.1, 0.83, 1],
     glowColor: [0.22, 0.28, 0.75],
-    markers: [],
+    markers: [{ location: [lat, lon], size: 0.05 }],
     onRender(state) {
+      if (!last) {
+        offPhi *= 0.93;
+        offTheta *= 0.93;
+      }
+      state.phi = phi + offPhi;
+      state.theta = theta + offTheta;
+      wrap.classList.toggle("is-off", Math.abs(offPhi) + Math.abs(offTheta) > 0.03);
       state.width = size * 2;
       state.height = size * 2;
     },
