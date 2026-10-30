@@ -1,6 +1,7 @@
 // По названию локации (CONTENT.en.location, часть до запятой) находит координаты
 // и часовой пояс через бесплатный геокодер Open-Meteo. Результат кэшируется у зрителя.
-// Заполняет [data-tz] смещением вида «GMT+7»; window.GEO — промис с { lat, lon, tz }.
+// Заполняет [data-tz] местным временем и смещением: «23:40 · GMT+7», время обновляется само.
+// window.GEO — промис с { lat, lon, tz }.
 
 (function () {
   const query = window.CONTENT.en.location.split(",")[0].trim();
@@ -28,9 +29,16 @@
     return geo;
   }
 
+  function showTime(tz) {
+    const time = new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+      .format(new Date());
+    const text = `${time} · ${gmtOffset(tz)}`;
+    document.querySelectorAll("[data-tz]").forEach((el) => (el.textContent = text));
+  }
+
   window.GEO = lookup().then((geo) => {
-    const gmt = gmtOffset(geo.tz);
-    document.querySelectorAll("[data-tz]").forEach((el) => (el.textContent = gmt));
+    showTime(geo.tz);
+    setInterval(() => showTime(geo.tz), 20000);
     return geo;
   });
   window.GEO.catch((err) => console.warn(err));
