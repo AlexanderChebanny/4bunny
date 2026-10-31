@@ -2,8 +2,8 @@
 //   here    — центр на текущей локации (window.GEO), её страна подсвечена;
 //   flights — перелёты из window.FLIGHTS: дуги, аэропорты, страны, где был.
 // Один палец или мышь крутят, щипок двумя пальцами (или Ctrl + колесо / щипок
-// на трекпаде) приближает. Через 5 секунд без касаний глобус плавно возвращается
-// к центру текущего режима.
+// на трекпаде) приближает. Без касаний глобус плавно возвращается к центру режима:
+// через 4 секунды у точки, через 5 — в перелётах.
 //
 // Способ переключения режима задаётся атрибутом data-trigger у [data-globe-wrap]:
 //   caption — подписи-кнопки [data-globe-mode] рядом с глобусом;
@@ -26,7 +26,8 @@
   const MAX_ZOOM = 3; // дальше карта 110m становится заметно угловатой
   const PINCH_OUT_MIN = 0.6; // насколько можно отдалить в варианте pinch
   const PINCH_OUT_SWITCH = 0.8; // отпустил меньше этого — режим переключается
-  const RETURN_DELAY = 5000; // мс без касаний до возврата к центру режима
+  // мс без касаний до возврата к центру режима: у точки — быстрее, в перелётах есть что разглядывать
+  const RETURN_DELAY = { here: 4000, flights: 5000 };
   const TAP_MAX_MOVE = 6; // px — больше уже не тап, а вращение
   const TAP_MAX_TIME = 350; // мс
   const FLING_SPEED = 1.1; // px/мс в момент отпускания — это «швырок»
@@ -143,7 +144,7 @@
     const goHome = () => animateTo(views[mode], BASE_SCALE);
     function goHomeLater() {
       clearTimeout(homeTimer);
-      homeTimer = setTimeout(goHome, RETURN_DELAY);
+      homeTimer = setTimeout(goHome, RETURN_DELAY[mode]);
     }
 
     function setMode(next, { spin = 0 } = {}) {
