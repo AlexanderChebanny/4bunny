@@ -7,7 +7,8 @@ window.ICONS = {
   instagram: s(
     `<rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r=".9" fill="currentColor" stroke="none"/>`
   ),
-  telegram: s(`<path d="M21.5 3.5 2.5 11 9 13.5l10-7-8 8.5v5.5l3.2-3.7 3.8 2.7z"/>`),
+  // Самолётик одной линией, сгиб доходит до носа (по мотивам Tabler Icons, MIT)
+  telegram: s(`<path d="M15 10l-4 4 6 6 4-16-18 7 4 2 2 6 3-4"/>`),
   whatsapp: s(
     `<path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z"/><path d="M9 8.6c.5-.5 1.1-.4 1.3 0l.7 1.6c.1.3 0 .5-.2.7l-.5.5c.6 1.3 1.6 2.3 2.9 2.9l.5-.5c.2-.2.4-.3.7-.2l1.6.7c.4.2.5.8 0 1.3-.6.6-1.6.9-2.6.5-2.2-.8-4-2.6-4.8-4.8-.4-1-.1-2 .4-2.7z" fill="currentColor" stroke="none"/>`
   ),
