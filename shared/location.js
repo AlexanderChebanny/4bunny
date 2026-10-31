@@ -1,7 +1,7 @@
 // По названию локации (CONTENT.en.location, часть до запятой) находит координаты
 // и часовой пояс через бесплатный геокодер Open-Meteo. Результат кэшируется у зрителя.
 // Заполняет [data-tz] местным временем и смещением: «23:40 · GMT+7», время обновляется само.
-// По нажатию показывает время посетителя и разницу: «у тебя 18:40 · я на 5 ч впереди».
+// По нажатию показывает время посетителя и разницу: «У тебя 18:40 · У меня +5 часов».
 // window.GEO — промис с { lat, lon, tz }.
 
 (function () {
@@ -48,8 +48,11 @@
     let text = `${clock(tz)} · ${gmtOffset(tz)}`;
     if (showYours) {
       const diff = (offsetMinutes(tz) + new Date().getTimezoneOffset()) / 60; // мой пояс минус пояс посетителя
-      const hours = String(Math.round(Math.abs(diff) * 10) / 10).replace(".", dict === window.CONTENT.ru ? "," : ".");
-      const relation = diff === 0 ? dict.tz_same : (diff > 0 ? dict.tz_ahead : dict.tz_behind).replace("{h}", hours);
+      const lang = dict === window.CONTENT.ru ? "ru" : "en";
+      const n = Math.round(Math.abs(diff) * 10) / 10;
+      const unit = dict.tz_hours[new Intl.PluralRules(lang).select(n)] || dict.tz_hours.other; // 1 час, 4 часа, 11 часов
+      const hours = `${diff > 0 ? "+" : "−"}${n.toLocaleString(lang)} ${unit}`;
+      const relation = diff === 0 ? dict.tz_same : dict.tz_diff.replace("{h}", hours);
       text = `${dict.tz_yours.replace("{time}", clock(undefined))} · ${relation}`;
     }
     document.querySelectorAll("[data-tz]").forEach((el) => {
