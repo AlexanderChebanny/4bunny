@@ -44,23 +44,24 @@
   a { color: inherit; text-decoration: none; }
 
   /* ---------- фон ---------- */
-  /* Высота по «большому» вьюпорту (lvh): в Safari на iPhone фон заходит под нижнюю панель
-     с адресом, а не обрывается над ней — иначе под панелью видна чёрная полоса */
-  .bg { position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100lvh; z-index: -1; overflow: hidden; }
+  /* Safari на iOS 26 обрезает закреплённый фон над нижней панелью с адресом, а под ней
+     рисует просто тёмный цвет страницы — получается полоса. Поэтому фон выпущен за края
+     экрана на --bleed сверху и снизу, а пятна сдвинуты обратно на ту же величину */
+  .bg { --bleed: 160px; position: fixed; inset: calc(-1 * var(--bleed)) 0; z-index: -1; overflow: hidden; }
   .bg i { position: absolute; display: block; border-radius: 50%; filter: blur(80px); mix-blend-mode: screen; }
   .bg .c1 {
-    width: 80vmax; height: 80vmax; left: -30vmax; top: -30vmax;
+    width: 80vmax; height: 80vmax; left: -30vmax; top: calc(-30vmax + var(--bleed));
     background: radial-gradient(closest-side, var(--blue), transparent);
     animation: a1 20s ease-in-out infinite alternate;
   }
   .bg .c2 {
-    width: 50vmax; height: 50vmax; right: -18vmax; top: 22vh;
+    width: 50vmax; height: 50vmax; right: -18vmax; top: calc(22vh + var(--bleed));
     background: radial-gradient(closest-side, var(--cyan), transparent);
     opacity: .75;
     animation: a2 24s ease-in-out infinite alternate;
   }
   .bg .c3 {
-    width: 45vmax; height: 45vmax; left: -10vmax; bottom: -20vmax;
+    width: 45vmax; height: 45vmax; left: -10vmax; bottom: calc(-20vmax + var(--bleed));
     background: radial-gradient(closest-side, var(--magenta), transparent);
     opacity: .7;
     animation: a1 28s ease-in-out infinite alternate-reverse;
