@@ -7,8 +7,8 @@ window.ICONS = {
   instagram: s(
     `<rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r=".9" fill="currentColor" stroke="none"/>`
   ),
-  // Самолётик одной линией, сгиб доходит до носа (по мотивам Tabler Icons, MIT)
-  telegram: s(`<path d="M15 10l-4 4 6 6 4-16-18 7 4 2 2 6 3-4"/>`),
+  // Самолётик Telegram из Phosphor Icons (MIT): своя сетка 256, толщина линии под остальные иконки
+  telegram: `<svg viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M88 134.87 178.26 214a8 8 0 0 0 13.09-4.21L232 33.22a1 1 0 0 0-1.34-1.15L28 111.38a6.23 6.23 0 0 0 1 11.92Z"/><path d="M88 134.87 231.41 32.09"/><path d="m132.37 173.78-30.61 31.76A8 8 0 0 1 88 200v-65.13"/></svg>`,
   whatsapp: s(
     `<path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z"/><path d="M9 8.6c.5-.5 1.1-.4 1.3 0l.7 1.6c.1.3 0 .5-.2.7l-.5.5c.6 1.3 1.6 2.3 2.9 2.9l.5-.5c.2-.2.4-.3.7-.2l1.6.7c.4.2.5.8 0 1.3-.6.6-1.6.9-2.6.5-2.2-.8-4-2.6-4.8-4.8-.4-1-.1-2 .4-2.7z" fill="currentColor" stroke="none"/>`
   ),

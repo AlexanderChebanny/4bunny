@@ -44,7 +44,9 @@
   a { color: inherit; text-decoration: none; }
 
   /* ---------- фон ---------- */
-  .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+  /* Высота по «большому» вьюпорту (lvh): в Safari на iPhone фон заходит под нижнюю панель
+     с адресом, а не обрывается над ней — иначе под панелью видна чёрная полоса */
+  .bg { position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100lvh; z-index: -1; overflow: hidden; }
   .bg i { position: absolute; display: block; border-radius: 50%; filter: blur(80px); mix-blend-mode: screen; }
   .bg .c1 {
     width: 80vmax; height: 80vmax; left: -30vmax; top: -30vmax;
