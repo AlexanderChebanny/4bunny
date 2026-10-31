@@ -125,16 +125,19 @@
     let animation = null;
     let homeTimer = null;
 
-    // Плавный поворот к rotate и масштабу scale. spin — лишние градусы по долготе
+    // Плавный поворот к rotate и масштабу scale. spin — знак задаёт направление
     // для «швырка»: глобус докручивается в сторону жеста и делает полный оборот.
     function animateTo(rotate, scale, { duration = MOVE_TIME, spin = 0 } = {}) {
       cancelAnimationFrame(animation);
       const fromRotate = projection.rotate();
       const fromScale = projection.scale();
       let dLambda = ((((rotate[0] - fromRotate[0]) % 360) + 540) % 360) - 180; // кратчайший путь
+      // Швырок: крутим в сторону жеста примерно на один оборот (от пол-оборота до полутора),
+      // а не «путь до цели + ещё 360°», который давал почти два оборота
       if (spin) {
-        if (Math.sign(dLambda) !== Math.sign(spin)) dLambda += Math.sign(spin) * 360;
-        dLambda += spin;
+        const dir = Math.sign(spin);
+        const ahead = ((dLambda * dir) % 360 + 360) % 360; // сколько до цели в сторону жеста
+        dLambda = dir * (ahead < 180 ? ahead + 360 : ahead);
       }
       const dPhi = rotate[1] - fromRotate[1];
       const start = performance.now();

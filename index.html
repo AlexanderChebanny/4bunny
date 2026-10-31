@@ -31,9 +31,11 @@
     --magenta: #ff2fb9;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { -webkit-text-size-adjust: 100%; }
+  /* Цвет страницы виден только в полосе под часами и батареей: Safari 26 заливает её им,
+     а цветные пятна туда не дорисовывает. Поэтому он синий, как верхний край градиента,
+     а тёмная подложка — у самого фона .bg */
+  html { -webkit-text-size-adjust: 100%; background: #1f2f6e; }
   body {
-    background: var(--bg);
     color: var(--ink);
     font-family: "Onest", system-ui, sans-serif;
     font-size: 16px;
@@ -47,7 +49,7 @@
   /* Safari на iOS 26 обрезает закреплённый фон над нижней панелью с адресом, а под ней
      рисует просто тёмный цвет страницы — получается полоса. Поэтому фон выпущен за края
      экрана на --bleed сверху и снизу, а пятна сдвинуты обратно на ту же величину */
-  .bg { --bleed: 160px; position: fixed; inset: calc(-1 * var(--bleed)) 0; z-index: -1; overflow: hidden; }
+  .bg { --bleed: 160px; position: fixed; inset: calc(-1 * var(--bleed)) 0; z-index: -1; overflow: hidden; background: var(--bg); }
   .bg i { position: absolute; display: block; border-radius: 50%; filter: blur(80px); mix-blend-mode: screen; }
   .bg .c1 {
     width: 80vmax; height: 80vmax; left: -30vmax; top: calc(-30vmax + var(--bleed));
@@ -107,6 +109,10 @@
   h1 span:last-child {
     background: linear-gradient(90deg, var(--cyan), #a99bff 50%, var(--magenta));
     -webkit-background-clip: text; background-clip: text; color: transparent;
+    /* Градиент рисуется только внутри блока строки, а при line-height .9 хвосты «y» и «й»
+       и последняя буква (из-за отрицательного letter-spacing) вылезают за него — расширяем
+       блок вниз и вправо, а отступами возвращаем раскладку как была */
+    width: fit-content; padding: 0 .08em .14em 0; margin-bottom: -.14em;
   }
   .role { margin-top: 24px; font-size: 20px; font-weight: 500; max-width: 24ch; }
   .bio { margin-top: 6px; font-size: 18px; font-weight: 300; color: var(--muted); max-width: 30ch; }
@@ -217,6 +223,13 @@
     .cols section { margin-top: 0; }
     .cols-bottom { align-items: center; }
     .foot { margin-top: 96px; }
+  }
+
+  /* Маленькие телефоны (iPhone SE: в Safari видно 549 px, и ещё ~100 px просвечивает под
+     стеклянной панелью с адресом) — первый экран целиком под шапку, чтобы заголовок
+     «Ссылки» не торчал из-под панели */
+  @media (max-width: 959px) and (max-height: 600px) {
+    .hero { min-height: 100lvh; }
   }
 
   @media (prefers-reduced-motion: reduce) { .bg i, .globe .ring, .globe .flight { animation: none; } }
