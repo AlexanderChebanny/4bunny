@@ -22,15 +22,22 @@
 (function () {
   const { d3, topojson, WORLD } = window;
 
-  const BASE_SCALE = 176;
-  const MAX_ZOOM = 3; // дальше карта 110m становится заметно угловатой
-  const PINCH_OUT_MIN = 0.6; // насколько можно отдалить в варианте pinch
-  const PINCH_OUT_SWITCH = 0.8; // отпустил меньше этого — режим переключается
+  // ---------- настройки: всё, что можно крутить руками ----------
+  const BASE_SCALE = 176; // радиус глобуса в единицах viewBox 400×400 (176 — почти во всю ширину)
+  const MAX_ZOOM = 3; // во сколько раз можно приблизить; дальше карта 110m становится заметно угловатой
+  const ROTATE_SPEED = 0.35; // градусов поворота на пиксель движения пальца
+  const MAX_TILT = 80; // градусов наклона вверх/вниз, чтобы не перевернуть глобус через полюс
   // мс без касаний до возврата к центру режима: у точки — быстрее, в перелётах есть что разглядывать
   const RETURN_DELAY = { here: 4000, flights: 5000 };
+  const MOVE_TIME = 1100; // мс — плавный возврат и переключение кнопкой
+  const SPIN_TIME = 1800; // мс — оборот после «швырка»
+  const FLING_SPEED = 1.1; // px/мс в момент отпускания — это «швырок»; меньше — переключать легче
+  const WHEEL_ZOOM = 100; // чувствительность щипка на трекпаде: меньше — быстрее зум
   const TAP_MAX_MOVE = 6; // px — больше уже не тап, а вращение
   const TAP_MAX_TIME = 350; // мс
-  const FLING_SPEED = 1.1; // px/мс в момент отпускания — это «швырок»
+  const PINCH_OUT_MIN = 0.6; // насколько можно отдалить в варианте pinch
+  const PINCH_OUT_SWITCH = 0.8; // отпустил меньше этого — режим переключается
+  // Цвета (суша, моя страна, посещённые, дуги) — в разметке SVG ниже, в функции svgMarkup
 
   const countries = topojson.feature(WORLD, WORLD.objects.countries).features;
   const graticule = d3.geoGraticule10();
@@ -119,7 +126,7 @@
 
     // Плавный поворот к rotate и масштабу scale. spin — лишние градусы по долготе
     // для «швырка»: глобус докручивается в сторону жеста и делает полный оборот.
-    function animateTo(rotate, scale, { duration = 1100, spin = 0 } = {}) {
+    function animateTo(rotate, scale, { duration = MOVE_TIME, spin = 0 } = {}) {
       cancelAnimationFrame(animation);
       const fromRotate = projection.rotate();
       const fromScale = projection.scale();
@@ -156,17 +163,17 @@
         btn.setAttribute("aria-pressed", String(btn.dataset.globeMode === mode))
       );
       box.querySelectorAll("[data-globe-toggle]").forEach((btn) => btn.setAttribute("aria-pressed", String(mode === "flights")));
-      animateTo(views[mode], BASE_SCALE, { duration: spin ? 1800 : 1100, spin });
+      animateTo(views[mode], BASE_SCALE, { duration: spin ? SPIN_TIME : MOVE_TIME, spin });
     }
     const toggleMode = (options) => setMode(mode === "here" ? "flights" : "here", options);
 
     // ---------- жесты ----------
-    // Вращение: 0.35° на пиксель при обычном масштабе, при зуме медленнее, чтобы
+    // Вращение: ROTATE_SPEED° на пиксель при обычном масштабе, при зуме медленнее, чтобы
     // приближенная карта не улетала из-под пальца. Наклон ограничен.
     function rotateBy(dx, dy) {
-      const k = (0.35 * BASE_SCALE) / projection.scale();
+      const k = (ROTATE_SPEED * BASE_SCALE) / projection.scale();
       const [lambda, phi] = projection.rotate();
-      projection.rotate([lambda + dx * k, Math.max(-80, Math.min(80, phi - dy * k))]);
+      projection.rotate([lambda + dx * k, Math.max(-MAX_TILT, Math.min(MAX_TILT, phi - dy * k))]);
     }
 
     const minScale = trigger === "pinch" ? BASE_SCALE * PINCH_OUT_MIN : BASE_SCALE;
@@ -254,7 +261,7 @@
         e.preventDefault();
         cancelAnimationFrame(animation);
         clearTimeout(homeTimer);
-        zoomTo(projection.scale() * Math.exp(-e.deltaY / 100));
+        zoomTo(projection.scale() * Math.exp(-e.deltaY / WHEEL_ZOOM));
         render();
         clearTimeout(wheelIdle);
         wheelIdle = setTimeout(() => {
