@@ -1,6 +1,8 @@
-// Глобус с контурами стран (d3-geo, SVG). Два режима:
+// Глобус с контурами стран (d3-geo, SVG). Три режима:
 //   here    — центр на текущей локации (window.GEO), её страна подсвечена;
-//   flights — перелёты из window.FLIGHTS: дуги, аэропорты, страны, где был.
+//   flights — перелёты из window.FLIGHTS: дуги, аэропорты, страны, где был;
+//   places  — где я был из window.PLACES: страны пастельными цветами, города белыми точками,
+//             точка текущей локации скрыта.
 // Один палец или мышь крутят, щипок двумя пальцами (или Ctrl + колесо / щипок
 // на трекпаде) приближает. У точки отпустил — глобус сразу плавно возвращается к ней,
 // а если приближен — через RETURN_DELAY.here. В перелётах — через RETURN_DELAY.flights без касаний.
@@ -11,9 +13,10 @@
 //   fling   — резко раскрутить: глобус по инерции делает оборот и меняет режим;
 //   pinch   — отдалить щипком меньше обычного размера.
 //
-// Независимо от жеста режим переключает кнопка [data-globe-toggle] рядом с глобусом
-// (aria-pressed отражает, включены ли перелёты). В режиме перелётов текущая страна
-// окрашивается как остальные посещённые — CSS по классу .is-flights.
+// Независимо от жеста режим переключают кнопки [data-globe-toggle="flights|places"] рядом
+// с глобусом: нажал — режим включился, нажал ещё раз — назад к here (aria-pressed отражает,
+// включён ли он). Класс режима .is-flights / .is-places вешается на [data-globe-box] — по нему
+// CSS показывает слои и перекрашивает текущую страну.
 //
 // Библиотеки и карта лежат в assets/vendor/ и подключены обычными скриптами до этого:
 // window.d3 (d3-array + d3-geo), window.topojson, window.WORLD — без CDN и без модулей,
@@ -29,7 +32,7 @@
   const MAX_TILT = 80; // градусов наклона вверх/вниз, чтобы не перевернуть глобус через полюс
   // мс без касаний до возврата к центру режима. У точки без зума возврат сразу при отпускании,
   // here — только для приближенного глобуса; в перелётах есть что разглядывать
-  const RETURN_DELAY = { here: 3000, flights: 3000 };
+  const RETURN_DELAY = { here: 3000, flights: 3000, places: 3000 };
   const MOVE_TIME = 1100; // мс — плавный возврат и переключение кнопкой
   const SPIN_TIME = 1800; // мс — оборот после «швырка»
   const FLING_SPEED = 1.1; // px/мс в момент отпускания — это «швырок»; меньше — переключать легче
@@ -38,7 +41,10 @@
   const TAP_MAX_TIME = 350; // мс
   const PINCH_OUT_MIN = 0.6; // насколько можно отдалить в варианте pinch
   const PINCH_OUT_SWITCH = 0.8; // отпустил меньше этого — режим переключается
-  // Цвета (суша, моя страна, посещённые, дуги) — в разметке SVG ниже, в функции svgMarkup
+  // Цвета (суша, моя страна, посещённые, дуги) — в разметке SVG ниже, в функции svgMarkup.
+  // Пастель стран в «где я был» — из кода страны (шаг золотого угла), так цвет не меняется
+  // между загрузками, а соседние коды получают далёкие оттенки
+  const pastel = (id, alpha) => `hsla(${(Number(id) * 137.508) % 360}, 85%, 78%, ${alpha})`;
 
   const countries = topojson.feature(WORLD, WORLD.objects.countries).features;
   const graticule = d3.geoGraticule10();
@@ -61,17 +67,19 @@
         <path data-graticule fill="none" stroke="rgba(255,255,255,.06)" stroke-width=".5"/>
         <path data-land fill="rgba(255,255,255,.035)" stroke="rgba(255,255,255,.28)" stroke-width=".45"/>
         <g class="flight-layer"><path data-visited fill="rgba(169,155,255,.3)" stroke="rgba(201,191,255,.85)" stroke-width=".8"/></g>
+        <g class="places-layer" data-places-countries></g>
         <path data-home fill="rgba(24,212,255,.35)" stroke="#18d4ff" stroke-width="1.2"/>
         <g class="flight-layer">
           <path data-flights class="flight" fill="none" stroke="#c9bfff" stroke-width="1.3"/>
           <path data-airports fill="rgba(255,255,255,.8)"/>
         </g>
+        <g class="places-layer"><path data-cities fill="#fff"/></g>
         <g data-dot><circle class="ring" r="3.4"/><circle class="core" r="3.4"/></g>
       </g>
     </svg>`;
   }
 
-  function createGlobe(wrap, { trigger, geo, flights }) {
+  function createGlobe(wrap, { trigger, geo, flights, places }) {
     const id = ++uid;
     wrap.insertAdjacentHTML("afterbegin", svgMarkup(id));
     const box = wrap.closest("[data-globe-box]") || wrap; // сюда вешаем класс режима, подписи реагируют
@@ -84,6 +92,7 @@
       home: el("home"),
       flights: el("flights"),
       airports: el("airports"),
+      cities: el("cities"),
     };
     const dotEl = el("dot");
 
@@ -103,11 +112,30 @@
         coordinates: (flights?.routes ?? []).map(([a, b]) => [flights.airports[a], flights.airports[b]]),
       },
       airports: { type: "MultiPoint", coordinates: Object.values(flights?.airports ?? {}) },
+      cities: { type: "MultiPoint", coordinates: Object.values(places ?? {}).flatMap((cities) => Object.values(cities)) },
     };
 
-    // Куда смотрит глобус в каждом режиме: на точку или на «центр тяжести» аэропортов
-    const flightsCenter = flights ? d3.geoCentroid(shapes.airports) : here;
-    const views = { here: [-here[0], -here[1]], flights: [-flightsCenter[0], -flightsCenter[1]] };
+    // Каждой посещённой стране — свой path со своим цветом, одним path разные цвета не нарисовать
+    const placesGroup = el("places-countries");
+    const placeCountries = countries
+      .filter((f) => places && f.id in places)
+      .map((f) => {
+        const node = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        node.setAttribute("fill", pastel(f.id, 0.45));
+        node.setAttribute("stroke", pastel(f.id, 0.9));
+        node.setAttribute("stroke-width", ".8");
+        placesGroup.append(node);
+        return { node, shape: f };
+      });
+
+    // Куда смотрит глобус в каждом режиме: на точку или на «центр тяжести» аэропортов / городов
+    const center = (shape) => {
+      const [lon, lat] = d3.geoCentroid(shape);
+      return [-lon, -lat];
+    };
+    const views = { here: [-here[0], -here[1]] };
+    if (flights) views.flights = center(shapes.airports);
+    if (places) views.places = center(shapes.cities);
     let mode = "here";
 
     const projection = d3.geoOrthographic().scale(BASE_SCALE).translate([200, 200]).rotate(views.here);
@@ -115,6 +143,7 @@
 
     function render() {
       for (const [name, node] of Object.entries(layers)) node.setAttribute("d", path(shapes[name]) || "");
+      for (const { node, shape } of placeCountries) node.setAttribute("d", path(shape) || "");
       const [x, y] = projection(here);
       const facing = d3.geoDistance(here, projection.invert([200, 200])) < Math.PI / 2;
       dotEl.setAttribute("transform", `translate(${x},${y})`);
@@ -159,17 +188,20 @@
     }
 
     function setMode(next, { spin = 0 } = {}) {
-      if (!flights) return;
+      if (!views[next]) return; // нет данных для режима — остаёмся где были
       clearTimeout(homeTimer);
       mode = next;
-      box.classList.toggle("is-flights", mode === "flights");
+      for (const name of Object.keys(views)) box.classList.toggle(`is-${name}`, mode === name);
       box.querySelectorAll("[data-globe-mode]").forEach((btn) =>
         btn.setAttribute("aria-pressed", String(btn.dataset.globeMode === mode))
       );
-      box.querySelectorAll("[data-globe-toggle]").forEach((btn) => btn.setAttribute("aria-pressed", String(mode === "flights")));
+      box.querySelectorAll("[data-globe-toggle]").forEach((btn) =>
+        btn.setAttribute("aria-pressed", String(mode === (btn.dataset.globeToggle || "flights")))
+      );
       animateTo(views[mode], BASE_SCALE, { duration: spin ? SPIN_TIME : MOVE_TIME, spin });
     }
-    const toggleMode = (options) => setMode(mode === "here" ? "flights" : "here", options);
+    // Жесты и кнопки-переключатели: включить режим target, а если он уже включён — назад к here
+    const toggleMode = (options, target = "flights") => setMode(mode === target ? "here" : target, options);
 
     // ---------- жесты ----------
     // Вращение: ROTATE_SPEED° на пиксель при обычном масштабе, при зуме медленнее, чтобы
@@ -282,7 +314,9 @@
     box.querySelectorAll("[data-globe-mode]").forEach((btn) =>
       btn.addEventListener("click", () => setMode(btn.dataset.globeMode))
     );
-    box.querySelectorAll("[data-globe-toggle]").forEach((btn) => btn.addEventListener("click", () => toggleMode()));
+    box.querySelectorAll("[data-globe-toggle]").forEach((btn) =>
+      btn.addEventListener("click", () => toggleMode({}, btn.dataset.globeToggle || "flights"))
+    );
 
     render();
     wrap.classList.add("is-ready");
@@ -291,7 +325,12 @@
 
   window.GEO.then((geo) => {
     document.querySelectorAll("[data-globe-wrap]").forEach((wrap) =>
-      createGlobe(wrap, { trigger: wrap.dataset.trigger || "caption", geo, flights: window.FLIGHTS || null })
+      createGlobe(wrap, {
+        trigger: wrap.dataset.trigger || "caption",
+        geo,
+        flights: window.FLIGHTS || null,
+        places: window.PLACES || null,
+      })
     );
   }).catch((err) => console.warn("Глобус не загрузился:", err));
 })();
