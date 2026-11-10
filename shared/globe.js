@@ -77,7 +77,7 @@
           <path data-flights class="flight" fill="none" stroke="#c9bfff" stroke-width="1.3"/>
           <path data-airports fill="rgba(255,255,255,.8)"/>
         </g>
-        <g class="places-layer"><path data-cities fill="#fff"/></g>
+        <g class="places-layer"><path data-cities-glow fill="rgba(255,255,255,.22)"/><path data-cities fill="#fff"/></g>
         <g data-dot><circle class="ring" r="3.4"/><circle class="core" r="3.4"/></g>
       </g>
     </svg>`;
@@ -96,6 +96,7 @@
       home: el("home"),
       flights: el("flights"),
       airports: el("airports"),
+      citiesGlow: el("cities-glow"),
       cities: el("cities"),
     };
     const dotEl = el("dot");
@@ -118,6 +119,9 @@
       airports: { type: "MultiPoint", coordinates: Object.values(flights?.airports ?? {}) },
       cities: { type: "MultiPoint", coordinates: Object.values(places ?? {}).flatMap((cities) => Object.values(cities)) },
     };
+    // Ореол вокруг городов — те же точки крупнее и прозрачнее. CSS drop-shadow здесь не годится:
+    // на iPhone он пересчитывается каждый кадр, и глобус начинает тормозить при вращении
+    shapes.citiesGlow = { ...shapes.cities };
 
     // Каждой посещённой стране — свой path со своим цветом, одним path разные цвета не нарисовать
     const placesGroup = el("places-countries");
@@ -143,11 +147,20 @@
     let mode = "here";
 
     const projection = d3.geoOrthographic().scale(BASE_SCALE).translate([200, 200]).rotate(views.here);
-    const path = d3.geoPath(projection).pointRadius((shape) => (shape === shapes.cities ? CITY_RADIUS : AIRPORT_RADIUS));
+    const radius = new Map([[shapes.cities, CITY_RADIUS], [shapes.citiesGlow, CITY_RADIUS * 2]]);
+    const path = d3.geoPath(projection).pointRadius((shape) => radius.get(shape) ?? AIRPORT_RADIUS);
+
+    // Слой «стран» пересчитываем, только пока он виден (и ещё чуть-чуть, пока гаснет):
+    // иначе каждое движение пальца двигает невидимые пути, и телефон их перерисовывает
+    const placesLayers = new Set(["citiesGlow", "cities"]);
+    let placesFadeUntil = 0;
 
     function render() {
-      for (const [name, node] of Object.entries(layers)) node.setAttribute("d", path(shapes[name]) || "");
-      for (const { node, shape } of placeCountries) node.setAttribute("d", path(shape) || "");
+      const placesOn = mode === "places" || performance.now() < placesFadeUntil;
+      for (const [name, node] of Object.entries(layers)) {
+        if (placesOn || !placesLayers.has(name)) node.setAttribute("d", path(shapes[name]) || "");
+      }
+      if (placesOn) for (const { node, shape } of placeCountries) node.setAttribute("d", path(shape) || "");
       const [x, y] = projection(here);
       const facing = d3.geoDistance(here, projection.invert([200, 200])) < Math.PI / 2;
       dotEl.setAttribute("transform", `translate(${x},${y})`);
@@ -194,6 +207,7 @@
     function setMode(next, { spin = 0 } = {}) {
       if (!views[next]) return; // нет данных для режима — остаёмся где были
       clearTimeout(homeTimer);
+      if (mode === "places" && next !== "places") placesFadeUntil = performance.now() + 900; // CSS гасит слой за .8 с
       mode = next;
       for (const name of Object.keys(views)) box.classList.toggle(`is-${name}`, mode === name);
       box.querySelectorAll("[data-globe-mode]").forEach((btn) =>
