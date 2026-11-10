@@ -36,8 +36,7 @@ window.CONTENT = {
     podcast: "Подкаст",
     playlists: "Плейлисты",
     guides: "Гиды по городам",
-    my_flights: "Недавние перелёты",
-    places: "Страны",
+    my_flights: "Мои перелёты",
   },
   en: {
     name: "Sasha Chebannyy",
@@ -59,7 +58,6 @@ window.CONTENT = {
     podcast: "Podcast",
     playlists: "Playlists",
     guides: "City guides",
-    my_flights: "Recent flights",
-    places: "Countries",
+    my_flights: "My flights",
   },
 };
