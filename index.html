@@ -193,11 +193,14 @@
     transform-box: fill-box; transform-origin: center; animation: ping 2.4s ease-out infinite;
   }
   .globe .flight { stroke-dasharray: 3 5; animation: flow 1.6s linear infinite; } /* бегущий пунктир — перелёт */
-  .globe .flight-layer { opacity: 0; transition: opacity .8s ease; } /* перелёты видны только в своём режиме */
-  .is-flights .globe .flight-layer { opacity: 1; }
-  .globe [data-home] { transition: fill .8s ease, stroke .8s ease; }
+  .globe .flight-layer, .globe .places-layer { opacity: 0; transition: opacity .8s ease; } /* слои видны только в своём режиме */
+  .is-flights .globe .flight-layer, .is-places .globe .places-layer { opacity: 1; }
+  .globe [data-home], .globe [data-dot] circle { transition: fill .8s ease, stroke .8s ease, opacity .8s ease; }
   .is-flights .globe [data-home] { fill: rgba(169,155,255,.3); stroke: rgba(201,191,255,.85); stroke-width: .8; } /* в перелётах своя страна — как остальные посещённые */
-  .globe-switch { display: flex; justify-content: center; margin-top: 14px; }
+  .is-places .globe [data-home] { fill: transparent; stroke: transparent; } /* в «странах» своя — в пастели, как остальные */
+  .is-places .globe [data-dot] circle { opacity: 0; animation: none; } /* «где я сейчас» тут не показываем; анимация кольца иначе перебивает opacity */
+  .globe [data-cities] { filter: drop-shadow(0 0 2px rgba(255,255,255,.8)); }
+  .globe-switch { display: flex; justify-content: center; gap: 10px; margin-top: 14px; }
   .globe-toggle {
     font: 500 15px "Onest", sans-serif; color: var(--muted); cursor: pointer;
     background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 8px 18px;
@@ -301,7 +304,10 @@
 
     <section data-globe-box>
       <div class="globe" data-globe-wrap data-trigger="fling"></div> <!-- SVG рисует shared/globe.js; резкий «швырок» тоже включает перелёты -->
-      <p class="globe-switch"><button class="globe-toggle" data-globe-toggle aria-pressed="false" data-t="my_flights"></button></p>
+      <p class="globe-switch">
+        <button class="globe-toggle" data-globe-toggle="flights" aria-pressed="false" data-t="my_flights"></button>
+        <button class="globe-toggle" data-globe-toggle="places" aria-pressed="false" data-t="places"></button>
+      </p>
     </section>
   </div>
 
@@ -317,6 +323,7 @@
 <script src="assets/vendor/topojson-client.min.js"></script>
 <script src="assets/vendor/countries-110m.js"></script>
 <script src="assets/flights.js"></script>
+<script src="assets/places.js"></script>
 <script src="shared/globe.js"></script>
 </body>
 </html>

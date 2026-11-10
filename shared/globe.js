@@ -41,6 +41,8 @@
   const TAP_MAX_TIME = 350; // мс
   const PINCH_OUT_MIN = 0.6; // насколько можно отдалить в варианте pinch
   const PINCH_OUT_SWITCH = 0.8; // отпустил меньше этого — режим переключается
+  const AIRPORT_RADIUS = 2.2; // радиус точки аэропорта в единицах viewBox
+  const CITY_RADIUS = 1.4; // радиус точки города — меньше аэропорта: городов много и они кучнее
   // Цвета (суша, моя страна, посещённые, дуги) — в разметке SVG ниже, в функции svgMarkup.
   // Пастель стран в «где я был» — из кода страны (шаг золотого угла), так цвет не меняется
   // между загрузками, а соседние коды получают далёкие оттенки
@@ -139,7 +141,7 @@
     let mode = "here";
 
     const projection = d3.geoOrthographic().scale(BASE_SCALE).translate([200, 200]).rotate(views.here);
-    const path = d3.geoPath(projection).pointRadius(2.2);
+    const path = d3.geoPath(projection).pointRadius((shape) => (shape === shapes.cities ? CITY_RADIUS : AIRPORT_RADIUS));
 
     function render() {
       for (const [name, node] of Object.entries(layers)) node.setAttribute("d", path(shapes[name]) || "");
