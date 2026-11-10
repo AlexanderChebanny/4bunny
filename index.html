@@ -193,8 +193,10 @@
     transform-box: fill-box; transform-origin: center; animation: ping 2.4s ease-out infinite;
   }
   .globe .flight { stroke-dasharray: 3 5; animation: flow 1.6s linear infinite; } /* бегущий пунктир — перелёт */
-  .globe .flight-layer, .globe .places-layer { opacity: 0; transition: opacity .8s ease; } /* слои видны только в своём режиме */
-  .is-flights .globe .flight-layer, .is-places .globe .places-layer { opacity: 1; }
+  /* Слои видны только в своём режиме. Мало погасить opacity: Safari на iPhone всё равно рисует прозрачные
+     слои на каждом кадре вращения. visibility прячет их совсем — после того как они догаснут */
+  .globe .flight-layer, .globe .places-layer { opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility .8s; }
+  .is-flights .globe .flight-layer, .is-places .globe .places-layer { opacity: 1; visibility: visible; }
   .globe [data-home], .globe [data-dot] circle { transition: fill .8s ease, stroke .8s ease, opacity .8s ease; }
   .is-flights .globe [data-home] { fill: rgba(169,155,255,.3); stroke: rgba(201,191,255,.85); stroke-width: .8; } /* в перелётах своя страна — как остальные посещённые */
   .is-places .globe [data-home] { fill: transparent; stroke: transparent; } /* в «странах» своя — в пастели, как остальные */
