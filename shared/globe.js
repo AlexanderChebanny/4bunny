@@ -3,6 +3,7 @@
 //   flights — перелёты из window.FLIGHTS: дуги, аэропорты, страны, где был;
 //   places  — где я был из window.PLACES: страны пастельными цветами, города белыми точками,
 //             точка текущей локации скрыта.
+// Колесо мыши зумит после клика по глобусу (пока курсор на нём).
 // Один палец или мышь крутят, щипок двумя пальцами (или Ctrl + колесо / щипок
 // на трекпаде) приближает. У точки отпустил — глобус сразу плавно возвращается к ней,
 // а если приближен — через RETURN_DELAY.here. В перелётах — через RETURN_DELAY.flights без касаний.
@@ -37,12 +38,13 @@
   const SPIN_TIME = 1800; // мс — оборот после «швырка»
   const FLING_SPEED = 1.1; // px/мс в момент отпускания — это «швырок»; меньше — переключать легче
   const WHEEL_ZOOM = 100; // чувствительность щипка на трекпаде: меньше — быстрее зум
+  const MOUSE_WHEEL_ZOOM = 500; // то же для колеса мыши: щелчок колеса ≈ 100, даёт ~×1.2
   const TAP_MAX_MOVE = 6; // px — больше уже не тап, а вращение
   const TAP_MAX_TIME = 350; // мс
   const PINCH_OUT_MIN = 0.6; // насколько можно отдалить в варианте pinch
   const PINCH_OUT_SWITCH = 0.8; // отпустил меньше этого — режим переключается
   const AIRPORT_RADIUS = 2.2; // радиус точки аэропорта в единицах viewBox
-  const CITY_RADIUS = 1.4; // радиус точки города — меньше аэропорта: городов много и они кучнее
+  const CITY_RADIUS = 2; // радиус точки города — меньше аэропорта: городов много и они кучнее
   // Цвета (суша, моя страна, посещённые, дуги) — в разметке SVG ниже, в функции svgMarkup.
   // Пастель стран в «где я был» — из кода страны (шаг золотого угла), так цвет не меняется
   // между загрузками, а соседние коды получают далёкие оттенки
@@ -292,16 +294,23 @@
     svg.addEventListener("pointerup", release);
     svg.addEventListener("pointercancel", release);
 
-    // Трекпад присылает щипок как wheel с ctrlKey. Обычное колесо не трогаем — им листают страницу
+    // Трекпад присылает щипок как wheel с ctrlKey — он зумит всегда. Обычное колесо зумит
+    // только после клика мышью по глобусу и до ухода курсора с него, как карты Google:
+    // иначе страница «застревала» бы на глобусе, когда её просто листают
     let wheelIdle = null;
+    let wheelArmed = false;
+    svg.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse") wheelArmed = true;
+    });
+    svg.addEventListener("pointerleave", () => (wheelArmed = false));
     svg.addEventListener(
       "wheel",
       (e) => {
-        if (!e.ctrlKey) return;
+        if (!e.ctrlKey && !wheelArmed) return;
         e.preventDefault();
         cancelAnimationFrame(animation);
         clearTimeout(homeTimer);
-        zoomTo(projection.scale() * Math.exp(-e.deltaY / WHEEL_ZOOM));
+        zoomTo(projection.scale() * Math.exp(-e.deltaY / (e.ctrlKey ? WHEEL_ZOOM : MOUSE_WHEEL_ZOOM)));
         render();
         clearTimeout(wheelIdle);
         wheelIdle = setTimeout(() => {
